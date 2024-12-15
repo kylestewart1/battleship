@@ -67,7 +67,13 @@ describe('Gameboard method placeShip(row, column, length, direction) adds object
         const placed = gameboard.placeShip(0, 0, 2, "left");
         expect(placed).toBe(false);
     })
-     
+    
+    test('placeShip returns false if ship already present', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(0,0,2,"right");
+        const placed = gameboard.placeShip(0, 0, 2, "right");
+        expect(placed).toBe(false);
+    })
 })
 
 describe('Gameboard method receiveAttack(row, column) handles hits and misses', () => {
@@ -90,5 +96,31 @@ describe('Gameboard method receiveAttack(row, column) handles hits and misses', 
         gameboard.receiveAttack(5, 6);
         const duplicate = gameboard.receiveAttack(5, 6);
         expect(duplicate).toBe(false);
+    })
+    test('receiveAttack calls ship.hit() when ship at location', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(1, 2, 3, "up");
+        gameboard.placeShip(5, 6, 2, "down");
+        gameboard.receiveAttack(5, 6);
+        expect(gameboard.ships[1].ship.timesHit).toBe(1);
+    })
+})
+
+describe('Gameboard method allSunk', () => {
+    test('allSunk returns false if any ships not sunk', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(1, 2, 2, "up");
+        gameboard.placeShip(5, 6, 2, "down");
+        gameboard.receiveAttack(1, 2);
+        gameboard.receiveAttack(2, 2);
+        expect(gameboard.allSunk()).toBe(false);
+    })
+
+    test('allSunk returns true if all ships are sunk', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(1, 2, 2, "up");
+        gameboard.receiveAttack(1, 2);
+        gameboard.receiveAttack(2, 2);
+        expect(gameboard.allSunk()).toBe(true);
     })
 })
