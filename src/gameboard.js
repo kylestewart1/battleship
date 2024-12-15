@@ -12,6 +12,9 @@ export class Gameboard {
         if (coordinates === null) {
             return false;
         }
+        if (coordinates.some(([r, c]) => this.shipPresent(r, c))) {
+            return false;
+        }
         this.ships.push({
             coordinates,
             ship: new Ship(length)
@@ -34,16 +37,33 @@ export class Gameboard {
         });
     }
 
+    getShipIndex(searchedRow, searchedColumn) {
+        for (let i = 0; i < this.ships.length; i++) {
+            if (this.ships[i].coordinates.some(([row, column]) => {
+                return row === searchedRow && column === searchedColumn;
+            })) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     receiveAttack(row, column) {
         if (this.moveAlreadyPlayed(row, column)) {
             return false;
         }
         if (this.shipPresent(row, column)) {
+            const index = this.getShipIndex(row, column);
+            this.ships[index].ship.hit();
             this.hits.push([row, column])
         } else {
             this.misses.push([row, column]);
         }
         return true;
+    }
+
+    allSunk() {
+        return this.ships.every(ship => ship.ship.isSunk());
     }
 
     static inBounds(row, column) {
