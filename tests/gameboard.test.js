@@ -70,9 +70,25 @@ describe('Gameboard method placeShip(row, column, length, direction) adds object
      
 })
 
-
-test('Gameboard method receiveAttack(5, 6) returns false when no ship at row=5, column=6', () => {
-    const gameboard = new Gameboard();
-    gameboard.placeShip(1, 2, 3);
-    expect(gameboard.receiveAttack(5, 6)).toBe(false);
+describe('Gameboard method receiveAttack(row, column) handles hits and misses', () => {
+    test('receiveAttack(5, 6) adds [5,6] to misses when no ship at that position', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(1, 2, 3, "up");
+        gameboard.receiveAttack(5, 6);
+        expect(gameboard.misses).toEqual([[5,6]]);
+    })
+    test('receiveAttack(1, 2) adds [1,2] to hits when a ship is present at that position', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(1, 2, 3, "up");
+        expect(gameboard.shipPresent(1, 2)).toBe(true);
+        gameboard.receiveAttack(1, 2);
+        expect(gameboard.hits).toEqual([[1,2]]);
+    })
+    test('receiveAttack returns false if moveAlreadyPlayed', () => {
+        const gameboard = new Gameboard();
+        gameboard.placeShip(1, 2, 3, "up");
+        gameboard.receiveAttack(5, 6);
+        const duplicate = gameboard.receiveAttack(5, 6);
+        expect(duplicate).toBe(false);
+    })
 })

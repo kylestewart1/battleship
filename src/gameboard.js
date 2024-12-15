@@ -3,6 +3,8 @@ import { Ship } from "./ship";
 export class Gameboard {
     constructor() {
         this.ships = [];
+        this.misses = [];
+        this.hits = [];
     }
 
     placeShip(row, column, length, direction) {
@@ -17,9 +19,31 @@ export class Gameboard {
         return true;
     }
 
-    
+    moveAlreadyPlayed(row, column) {
+        function containsCoordinate(coordList, searchedRow, searchedColumn) {
+            return coordList.some(([row, column]) => row === searchedRow && column === searchedColumn);
+        }
+        return containsCoordinate(this.hits, row, column) || containsCoordinate(this.misses, row, column);
+    }
+
+    shipPresent(searchedRow, searchedColumn) {
+        return this.ships.some(ship => {
+            return ship.coordinates.some(([row, column]) => {
+                return row === searchedRow && column === searchedColumn;
+            })
+        });
+    }
+
     receiveAttack(row, column) {
-        return false;
+        if (this.moveAlreadyPlayed(row, column)) {
+            return false;
+        }
+        if (this.shipPresent(row, column)) {
+            this.hits.push([row, column])
+        } else {
+            this.misses.push([row, column]);
+        }
+        return true;
     }
 
     static inBounds(row, column) {
