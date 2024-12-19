@@ -1,0 +1,33 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100vh;
+}
+
+#board-container {
+    width: 90%;
+    height: 90%;
+    margin-left: 5%;
+    margin-top: 5%;
+    border: 1px solid black;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+}
+
+#board {
+    height: 90%;
+    width: 90%;
+    background-color: black;
+    display: grid;
+    grid-template: repeat(10, 1fr) / repeat(10, 1fr);
+    gap: 2px;
+}
+
+.cell {
+    background-color: blue;
+}
