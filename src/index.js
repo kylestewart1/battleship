@@ -1,2 +1,2 @@
 import "./styles.css";
-import { View } from "./view.js";
+import { BoardView } from "./board-view.js";

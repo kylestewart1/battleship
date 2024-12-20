@@ -8,18 +8,19 @@ html, body {
     height: 100vh;
 }
 
-#board-container {
-    width: 90%;
-    height: 90%;
-    margin-left: 5%;
-    margin-top: 5%;
+.container {
+    width: 60%;
+    height: 92%;
+    margin-left: 20%;
+    margin-top: 2%;
     border: 1px solid black;
     display: grid;
+    grid-template-rows: 1fr 1fr;
     align-items: center;
     justify-items: center;
 }
 
-#board {
+.board {
     height: 90%;
     width: 90%;
     background-color: black;
@@ -30,4 +31,12 @@ html, body {
 
 .cell {
     background-color: blue;
+}
+
+.miss {
+    background-color: white;
+}
+
+.hit {
+    background-color: red;
 }
