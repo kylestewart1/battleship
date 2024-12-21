@@ -3,7 +3,8 @@ import { Player } from "./player.js";
 export class BoardView {
     constructor(player) {
         this.player = player;
-        this.boardElement = document.querySelector(`.board[player="${player.number}"]`);
+        this.boardElement = document.querySelector(`.board[player="${this.player.number}"]`);
+        this.display();
     }
 
     getCells() {
@@ -31,5 +32,18 @@ export class BoardView {
         })
         this.renderMisses();
         this.renderHits();
+    }
+
+    display() {
+        for (let row = 1; row <= 10; row++) {
+            for (let column = 1; column <= 10; column++) {
+                const cell = document.createElement("button");
+                cell.classList.add("cell");
+                cell.dataset.row = row;
+                cell.dataset.column = column;
+                this.boardElement.appendChild(cell);
+            }
+        }
+        this.renderMoves();
     }
 }
