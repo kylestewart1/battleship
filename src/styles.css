@@ -29,8 +29,17 @@ html, body {
     gap: 2px;
 }
 
+button:hover {
+    cursor: pointer;
+}
+
 .cell {
     background-color: blue;
+    border: none;
+}
+
+.cell:hover {
+    border: 1px solid yellow;
 }
 
 .miss {

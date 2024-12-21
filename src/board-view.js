@@ -6,26 +6,30 @@ export class BoardView {
         this.boardElement = document.querySelector(`.board[player="${player.number}"]`);
     }
 
-    misses() {
+    getCells() {
+        return this.boardElement.querySelectorAll(".cell");
+    }
+
+    renderMisses() {
         this.player.misses().forEach(([row, column]) => {
             const cell = this.boardElement.querySelector(`.cell[row="${row+1}" column="${column+1}"]`);
             cell.classList.add("miss");
         })
     }
 
-    hits() {
+    renderHits() {
         this.player.hits().forEach(([row, column]) => {
             const cell = this.boardElement.querySelector(`.cell[row="${row+1}" column="${column+1}"]`);
             cell.classList.add("hit");
         })
     }
 
-    display() {
+    renderMoves() {
         this.boardElement.querySelectorAll(".cell").forEach(cell => {
             cell.classList.remove("miss");
             cell.classList.remove("hit");
         })
-        this.misses();
-        this.hits();
+        this.renderMisses();
+        this.renderHits();
     }
 }

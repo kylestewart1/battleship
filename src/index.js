@@ -1,2 +1,4 @@
 import "./styles.css";
-import { BoardView } from "./board-view.js";
+import { GameController } from "./game-controller.js";
+
+const game = new GameController();
