@@ -13,14 +13,14 @@ export class BoardView {
 
     renderMisses() {
         this.player.misses().forEach(([row, column]) => {
-            const cell = this.boardElement.querySelector(`.cell[row="${row+1}" column="${column+1}"]`);
+            const cell = this.boardElement.querySelector(`.cell[data-row="${row}"][data-column="${column}"]`);
             cell.classList.add("miss");
         })
     }
 
     renderHits() {
         this.player.hits().forEach(([row, column]) => {
-            const cell = this.boardElement.querySelector(`.cell[row="${row+1}" column="${column+1}"]`);
+            const cell = this.boardElement.querySelector(`.cell[data-row="${row}"][data-column="${column}"]`);
             cell.classList.add("hit");
         })
     }
@@ -35,6 +35,7 @@ export class BoardView {
     }
 
     display() {
+        this.boardElement.innerHTML = "";
         for (let row = 1; row <= 10; row++) {
             for (let column = 1; column <= 10; column++) {
                 const cell = document.createElement("button");

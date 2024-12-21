@@ -67,7 +67,7 @@ export class Gameboard {
     }
 
     static inBounds(row, column) {
-        return row >= 0 && row < 10 && column >= 0 && column < 10;
+        return row >= 1 && row <= 10 && column >= 1 && column <= 10;
     }
 
     static shipCoordinates(row, column, length, direction) {

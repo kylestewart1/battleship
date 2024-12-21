@@ -9,4 +9,9 @@ export class Player {
 
     misses = () => this.gameboard.misses;
     hits = () => this.gameboard.hits;
+
+    receiveAttack(row, column) {
+        this.gameboard.receiveAttack(row, column);
+    }
+
 }
