@@ -8,7 +8,7 @@ export class BoardView {
     }
 
     getCells() {
-        return this.boardElement.querySelectorAll(".cell");
+        return [...this.boardElement.querySelectorAll(".cell")]
     }
 
     renderMisses() {

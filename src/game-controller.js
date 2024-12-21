@@ -21,7 +21,12 @@ export class GameController {
     }
 
     playTurn() {
-        this.boardViews[this.otherPlayer()].getCells().forEach(cell => {
+        const freeCells = this.boardViews[this.otherPlayer()].getCells()
+            .filter(cellNode => {
+                const [row, column]  = [Number(cellNode.dataset.row), Number(cellNode.dataset.column)];
+                return !this.players[this.otherPlayer()].gameboard.moveAlreadyPlayed(row, column);
+            });
+        freeCells.forEach(cell => {
             cell.addEventListener("click", () => {
                 const row = Number(cell.dataset.row);
                 const column = Number(cell.dataset.column);
