@@ -13,9 +13,8 @@ export class GameController {
         this.boardViews = [new BoardView(this.players[0], false), new BoardView(this.players[1], true)];
         this.placeShipsComputer();
         this.currentPlayer = 0;
-        let gameOver = false;
-        this.placeShipsPlayer();
-        this.playerTurn();
+        const shipLengthStack = GameController.availableShipLengths();
+        this.placeShipsPlayer(shipLengthStack);
     }
 
     static availableShipLengths() {
@@ -35,12 +34,9 @@ export class GameController {
         }
     }
 
-    placeShipsPlayer() {
-        const shipLengthStack = GameController.availableShipLengths();
-        this.placeNextShip(shipLengthStack);
-    }
+    
 
-    placeNextShip(shipLengthStack) {
+    placeShipsPlayer(shipLengthStack) {
         this.boardViews[this.currentPlayer].getCells().forEach(cell => {
             cell.addEventListener("click", () => {
                 this.placeNextShipHandler(cell, shipLengthStack);
@@ -50,6 +46,8 @@ export class GameController {
 
     placeNextShipHandler(cell, shipLengthStack) {
         if (shipLengthStack.length === 0) {
+            this.boardViews[this.currentPlayer].update();
+            this.playerTurn();
             return;
         }
         const shipLength = shipLengthStack.pop();
@@ -59,7 +57,6 @@ export class GameController {
         options.forEach(([endRow, endColumn]) => {
             const endCell = this.boardViews[this.currentPlayer].boardElement.querySelector(`.cell[data-row="${endRow}"][data-column="${endColumn}"]`);
             endCell.classList.add("highlight");
-            console.log(endCell)
             endCell.addEventListener("click", () => {
                 let direction;
                 if (endRow > startRow) {
@@ -76,7 +73,7 @@ export class GameController {
                     shipLengthStack.push(shipLength);
                 }
                 this.boardViews[this.currentPlayer].update();
-                this.placeNextShip(shipLengthStack);
+                this.placeShipsPlayer(shipLengthStack);
             })
         })
     }
@@ -100,6 +97,10 @@ export class GameController {
     }
 
     playerTurn() {
+        if (this.gameOver()) {
+            console.log("donezo")
+            return;
+        }
         this.freeCells().forEach(cell => {
             cell.addEventListener("click", () => {
                 const row = Number(cell.dataset.row);
@@ -116,12 +117,15 @@ export class GameController {
         const freeCells = this.freeCells();
         const randomAttack = freeCells[Math.floor(Math.random() * freeCells.length)];
         const [row, column] = [Number(randomAttack.dataset.row), Number(randomAttack.dataset.column)];
-        console.log(row, column);
         this.players[this.otherPlayer()].receiveAttack(row, column);
         setTimeout(() => {
             this.switchPlayers();
             this.playerTurn();
         }, Math.floor(800 + 200*Math.random()));
+    }
+
+    gameOver() {
+        return this.players[0].gameboard.allSunk() || this.players[1].gameboard.allSunk();
     }
 
 }
