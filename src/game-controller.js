@@ -98,7 +98,6 @@ export class GameController {
 
     playerTurn() {
         if (this.gameOver()) {
-            console.log("donezo")
             return;
         }
         this.freeCells().forEach(cell => {
@@ -114,6 +113,9 @@ export class GameController {
 
 
     computerTurn() {
+        if (this.gameOver()) {
+            return;
+        }
         const freeCells = this.freeCells();
         const randomAttack = freeCells[Math.floor(Math.random() * freeCells.length)];
         const [row, column] = [Number(randomAttack.dataset.row), Number(randomAttack.dataset.column)];
