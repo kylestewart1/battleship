@@ -36,26 +36,23 @@ export class GameController {
     }
 
     placeShipsPlayer() {
-        const shipLengthIterator = (function*() {
-            yield* GameController.availableShipLengths().reverse();
-        })()
-        this.placeNextShip(shipLengthIterator);
+        const shipLengthStack = GameController.availableShipLengths();
+        this.placeNextShip(shipLengthStack);
     }
 
-    placeNextShip(shipLengthIterator) {
+    placeNextShip(shipLengthStack) {
         this.boardViews[this.currentPlayer].getCells().forEach(cell => {
             cell.addEventListener("click", () => {
-                this.placeShipStart(cell, shipLengthIterator);
+                this.placeNextShipHandler(cell, shipLengthStack);
             })
         })
     }
 
-    placeShipStart(cell, lengthIterator) {
-        const iterate = lengthIterator.next();
-        if (iterate.done) {
+    placeNextShipHandler(cell, shipLengthStack) {
+        if (shipLengthStack.length === 0) {
             return;
         }
-        const shipLength = iterate.value;
+        const shipLength = shipLengthStack.pop();
         this.boardViews[this.currentPlayer].update();
         const [startRow, startColumn] = [Number(cell.dataset.row), Number(cell.dataset.column)];
         const options = this.players[this.currentPlayer].gameboard.possibleShipEndpoints(startRow, startColumn, shipLength);
@@ -74,9 +71,12 @@ export class GameController {
                 } else {
                     direction = "left";
                 }
-                this.players[this.currentPlayer].gameboard.placeShip(startRow, startColumn, shipLength, direction);
+                const validPlacement = this.players[this.currentPlayer].gameboard.placeShip(startRow, startColumn, shipLength, direction);
+                if (!validPlacement) {
+                    shipLengthStack.push(shipLength);
+                }
                 this.boardViews[this.currentPlayer].update();
-                this.placeNextShip(lengthIterator);
+                this.placeNextShip(shipLengthStack);
             })
         })
     }
