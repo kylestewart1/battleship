@@ -3,6 +3,7 @@ import { Player } from "./player";
 
 export class GameController {
     constructor(againstComputer=true) {
+        this.instructions = document.getElementById("instructions");
         if (againstComputer) {
             this.playAgainstComputer();
         }
@@ -14,12 +15,14 @@ export class GameController {
         this.placeShipsComputer();
         this.currentPlayer = 0;
         const shipLengthStack = GameController.availableShipLengths();
+        this.boardViews[this.otherPlayer()].boardElement.classList.add("inactive-board");
         this.placeShipsPlayer(shipLengthStack);
     }
 
     static availableShipLengths() {
         return [2, 3, 3, 4, 5];
     }
+
 
     placeShipsComputer() {
         const shipLengths = GameController.availableShipLengths();
@@ -35,8 +38,15 @@ export class GameController {
     }
 
     
-
     placeShipsPlayer(shipLengthStack) {
+        if (shipLengthStack.length === 0) {
+            this.boardViews[this.otherPlayer()].boardElement.classList.remove("inactive-board");
+            this.boardViews[this.currentPlayer].update();
+            this.playerTurn();
+            return;
+        }
+        this.instructions.innerText = `Place a ship of length ${shipLengthStack[shipLengthStack.length - 1]}\n`;
+        this.instructions.innerText += "Click the cell where you want to place one end of the ship.";
         this.boardViews[this.currentPlayer].getCells().forEach(cell => {
             cell.addEventListener("click", () => {
                 this.placeNextShipHandler(cell, shipLengthStack);
@@ -45,11 +55,7 @@ export class GameController {
     }
 
     placeNextShipHandler(cell, shipLengthStack) {
-        if (shipLengthStack.length === 0) {
-            this.boardViews[this.currentPlayer].update();
-            this.playerTurn();
-            return;
-        }
+        this.instructions.innerText = "Click one of the highlighted cells to place ship's other end."
         const shipLength = shipLengthStack.pop();
         this.boardViews[this.currentPlayer].update();
         const [startRow, startColumn] = [Number(cell.dataset.row), Number(cell.dataset.column)];
@@ -97,7 +103,9 @@ export class GameController {
     }
 
     playerTurn() {
+        this.instructions.innerText = "Click an enemy position to attack." 
         if (this.gameOver()) {
+            this.finishGame();
             return;
         }
         this.freeCells().forEach(cell => {
@@ -114,8 +122,10 @@ export class GameController {
 
     computerTurn() {
         if (this.gameOver()) {
+            this.finishGame();
             return;
         }
+        this.instructions.innerText = "The enemy is attacking..."; 
         const freeCells = this.freeCells();
         const randomAttack = freeCells[Math.floor(Math.random() * freeCells.length)];
         const [row, column] = [Number(randomAttack.dataset.row), Number(randomAttack.dataset.column)];
@@ -130,4 +140,11 @@ export class GameController {
         return this.players[0].gameboard.allSunk() || this.players[1].gameboard.allSunk();
     }
 
+    finishGame() {
+        if (this.players[1].gameboard.allSunk()) {
+            this.instructions.innerText = "Victory! We've sunk all enemy ships!";
+        } else {
+            this.instructions.innerText = "Our fleet is sunk...";
+        }
+    }
 }

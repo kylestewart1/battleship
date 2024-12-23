@@ -4,30 +4,44 @@
     box-sizing: border-box;
 }
 
-html, body {
-    height: 100vh;
+
+body {
+    min-height: 100vh;
 }
 
+
 .container {
-    width: 60%;
-    height: 92%;
-    margin-left: 20%;
     margin-top: 2%;
+    margin-left: 10%;
+    width: 80%;
+    min-height: 90vh;
     border: 1px solid black;
     display: grid;
-    grid-template-rows: 1fr 1fr;
+    grid-template-rows: 1fr 10fr 1fr 10fr;
+    grid-template-columns: 2fr 1fr;
+    column-gap: 10px;
     align-items: center;
     justify-items: center;
+}
+
+.container > h3 {
+    grid-column: 1 / 2;
 }
 
 .board {
     height: 90%;
     width: 90%;
     background-color: black;
+    grid-column: 1 / 2;
     display: grid;
     grid-template: repeat(10, 1fr) / repeat(10, 1fr);
     gap: 2px;
 }
+
+#instructions {
+    border: 1px solid black;
+}
+
 
 button:hover {
     cursor: pointer;
@@ -73,4 +87,8 @@ dialog {
 
 .sunk-ship {
     background-color: orange;
+}
+
+.inactive-board {
+    opacity: 0.2;
 }
