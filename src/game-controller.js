@@ -3,13 +3,19 @@ import { Player } from "./player";
 
 export class GameController {
     constructor(againstComputer=true) {
-        this.players = [new Player(1, false), new Player(2, againstComputer)];
-        this.boardViews = [new BoardView(this.players[0], false), new BoardView(this.players[1], true)];
         if (againstComputer) {
-            this.placeShipsComputer();
+            this.playAgainstComputer();
         }
+    }
+
+    playAgainstComputer() {
+        this.players = [new Player(1, false), new Player(2, true)];
+        this.boardViews = [new BoardView(this.players[0], false), new BoardView(this.players[1], true)];
+        this.placeShipsComputer();
         this.currentPlayer = 0;
-        this.playTurn();
+        let gameOver = false;
+        this.placeShipsPlayer();
+        this.playerTurn();
     }
 
     static availableShipLengths() {
@@ -29,30 +35,93 @@ export class GameController {
         }
     }
 
+    placeShipsPlayer() {
+        const shipLengthIterator = (function*() {
+            yield* GameController.availableShipLengths().reverse();
+        })()
+        this.placeNextShip(shipLengthIterator);
+    }
+
+    placeNextShip(shipLengthIterator) {
+        this.boardViews[this.currentPlayer].getCells().forEach(cell => {
+            cell.addEventListener("click", () => {
+                this.placeShipStart(cell, shipLengthIterator);
+            })
+        })
+    }
+
+    placeShipStart(cell, lengthIterator) {
+        const iterate = lengthIterator.next();
+        if (iterate.done) {
+            return;
+        }
+        const shipLength = iterate.value;
+        this.boardViews[this.currentPlayer].update();
+        const [startRow, startColumn] = [Number(cell.dataset.row), Number(cell.dataset.column)];
+        const options = this.players[this.currentPlayer].gameboard.possibleShipEndpoints(startRow, startColumn, shipLength);
+        options.forEach(([endRow, endColumn]) => {
+            const endCell = this.boardViews[this.currentPlayer].boardElement.querySelector(`.cell[data-row="${endRow}"][data-column="${endColumn}"]`);
+            endCell.classList.add("highlight");
+            console.log(endCell)
+            endCell.addEventListener("click", () => {
+                let direction;
+                if (endRow > startRow) {
+                    direction = "down";
+                } else if (endRow < startRow) {
+                    direction = "up";
+                } else if (endColumn > startColumn) {
+                    direction = "right";
+                } else {
+                    direction = "left";
+                }
+                this.players[this.currentPlayer].gameboard.placeShip(startRow, startColumn, shipLength, direction);
+                this.boardViews[this.currentPlayer].update();
+                this.placeNextShip(lengthIterator);
+            })
+        })
+    }
+
     otherPlayer() {
         return (this.currentPlayer + 1) % 2;
     }
 
-    switchPlayers() {
-        this.boardViews.forEach(boardView => boardView.display());
-        this.currentPlayer = this.otherPlayer();
-        this.playTurn();
+    freeCells() {
+        return this.boardViews[this.otherPlayer()]
+          .getCells()
+          .filter(cellNode => {
+            const [row, column]  = [Number(cellNode.dataset.row), Number(cellNode.dataset.column)];
+            return !this.players[this.otherPlayer()].gameboard.moveAlreadyPlayed(row, column);
+           });
     }
 
-    playTurn() {
-        const freeCells = this.boardViews[this.otherPlayer()].getCells()
-            .filter(cellNode => {
-                const [row, column]  = [Number(cellNode.dataset.row), Number(cellNode.dataset.column)];
-                return !this.players[this.otherPlayer()].gameboard.moveAlreadyPlayed(row, column);
-            });
-        freeCells.forEach(cell => {
+    switchPlayers() {
+        this.boardViews.forEach(boardView => boardView.update());
+        this.currentPlayer = this.otherPlayer();
+    }
+
+    playerTurn() {
+        this.freeCells().forEach(cell => {
             cell.addEventListener("click", () => {
                 const row = Number(cell.dataset.row);
                 const column = Number(cell.dataset.column);
                 this.players[this.otherPlayer()].receiveAttack(row, column);
                 this.switchPlayers();
+                this.computerTurn();
             })
         })
+    }
+
+
+    computerTurn() {
+        const freeCells = this.freeCells();
+        const randomAttack = freeCells[Math.floor(Math.random() * freeCells.length)];
+        const [row, column] = [Number(randomAttack.dataset.row), Number(randomAttack.dataset.column)];
+        console.log(row, column);
+        this.players[this.otherPlayer()].receiveAttack(row, column);
+        setTimeout(() => {
+            this.switchPlayers();
+            this.playerTurn();
+        }, Math.floor(800 + 200*Math.random()));
     }
 
 }

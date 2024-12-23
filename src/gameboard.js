@@ -22,11 +22,29 @@ export class Gameboard {
         return true;
     }
 
+    possibleShipEndpoints(startRow, startColumn, length) {
+        return [[startRow + length - 1, startColumn],
+            [startRow - length + 1, startColumn],
+            [startRow, startColumn + length - 1],
+            [startRow, startColumn - length + 1]]
+            .filter(([row, column]) => Gameboard.inBounds(row, column) && !this.shipPresent(row, column));
+    }
+
     moveAlreadyPlayed(row, column) {
         function containsCoordinate(coordList, searchedRow, searchedColumn) {
             return coordList.some(([row, column]) => row === searchedRow && column === searchedColumn);
         }
         return containsCoordinate(this.hits, row, column) || containsCoordinate(this.misses, row, column);
+    }
+
+    availableMoves() {
+        const cells = [];
+        for (let row = 1; row <= 10; row++) {
+            for (let column = 1; column <= 10; column++) {
+                cells.push([row, column]);
+            }
+        }
+        return cells.filter(([row, column]) => !this.moveAlreadyPlayed(row, column));
     }
 
     shipPresent(searchedRow, searchedColumn) {
@@ -75,7 +93,7 @@ export class Gameboard {
         switch (direction) {
             case "up":
                 for (let i = 0; i < length; i++) {
-                    coordinates.push([row + i, column]);
+                    coordinates.push([row - i, column]);
                 }
                 break;
             case "right":
@@ -85,7 +103,7 @@ export class Gameboard {
                 break;
             case "down":
                 for (let i = 0; i < length; i++) {
-                    coordinates.push([row - i, column]);
+                    coordinates.push([row + i, column]);
                 }
                 break;
             case "left":

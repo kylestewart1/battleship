@@ -3,8 +3,8 @@ import { Player } from "./player.js";
 export class BoardView {
     constructor(player) {
         this.player = player;
-        this.boardElement = document.querySelector(`.board[player="${this.player.number}"]`);
-        this.display();
+        this.boardElement = document.querySelector(`.board[data-player="${this.player.number}"]`);
+        this.update();
     }
 
     getCells() {
@@ -15,6 +15,7 @@ export class BoardView {
         this.player.misses().forEach(([row, column]) => {
             const cell = this.boardElement.querySelector(`.cell[data-row="${row}"][data-column="${column}"]`);
             cell.classList.add("miss");
+            cell.classList.remove("active-ship");
         })
     }
 
@@ -22,19 +23,30 @@ export class BoardView {
         this.player.hits().forEach(([row, column]) => {
             const cell = this.boardElement.querySelector(`.cell[data-row="${row}"][data-column="${column}"]`);
             cell.classList.add("hit");
+            cell.classList.remove("active-ship");
         })
     }
 
     renderMoves() {
-        this.boardElement.querySelectorAll(".cell").forEach(cell => {
-            cell.classList.remove("miss");
-            cell.classList.remove("hit");
-        })
         this.renderMisses();
         this.renderHits();
     }
 
-    display() {
+    renderShips() {
+        this.player.gameboard.ships.forEach(({coordinates, ship}) => {
+            coordinates.forEach(([row, column]) => {
+                const cell = this.boardElement.querySelector(`.cell[data-row="${row}"][data-column="${column}"]`);
+                if (ship.isSunk()) {
+                    cell.classList.remove("active-ship");
+                    cell.classList.add("sunk-ship");
+                } else {
+                    cell.classList.add("active-ship");
+                }
+            })
+        })
+    }
+
+    update() {
         this.boardElement.innerHTML = "";
         for (let row = 1; row <= 10; row++) {
             for (let column = 1; column <= 10; column++) {
@@ -44,6 +56,9 @@ export class BoardView {
                 cell.dataset.column = column;
                 this.boardElement.appendChild(cell);
             }
+        }
+        if (! this.player.isComputer) {
+            this.renderShips();
         }
         this.renderMoves();
     }
